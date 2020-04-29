@@ -39,7 +39,7 @@ def load_yaml(filename, encoding='utf-8'):
             raise APIDeployError("Error al cargar el archivo: " + filename, None)
 
 
-def setup_logging(path='logging.yaml', default_level=logging.INFO):
+def setup_logging(path='/app/logging.yaml', default_level=logging.INFO):
     if os.path.exists(path):
         with open(path, 'rt') as f:
             try:
