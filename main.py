@@ -132,14 +132,14 @@ if __name__ == "__main__":
 
     logger = logging.getLogger(__name__)
 
-    product_file = os.getenv("PRODUCT_FILE")
-    manager_host = os.getenv("MANAGER_HOST", "localhost:2000")
-    manager_usrname = os.getenv("MANAGER_USRNAME")
-    manager_password = os.getenv("MANAGER_PASSWORD")
-    manager_realm = os.getenv("MANAGER_REALM")
-    catalog = os.getenv("CATALOG", "sadbox")
-    organization = os.getenv("CATALOG", "localtest")
-    space = os.getenv("CATALOG", None)
+    product_file = os.getenv("INPUT_PRODUCTFILE")
+    manager_host = os.getenv("INPUT_MANAGERHOST", "localhost:2000")
+    manager_usrname = os.getenv("INPUT_MANAGERUSERNAME")
+    manager_password = os.getenv("INPUT_MANAGERPASSWORD")
+    manager_realm = os.getenv("INPUT_MANAGERREALM")
+    catalog = os.getenv("INPUT_CATALOG", "sadbox")
+    organization = os.getenv("INPUT_ORGANIZATION ", "localtest")
+    space = os.getenv("INPUT_SPACE ", None)
 
     apic = APIConnect(manager=manager_host)
     apic.verify_ssl = False
