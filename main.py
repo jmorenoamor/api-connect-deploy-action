@@ -141,17 +141,42 @@ if __name__ == "__main__":
     organization = os.getenv("INPUT_ORGANIZATION ", "localtest")
     space = os.getenv("INPUT_SPACE ", None)
 
+    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
+    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
+    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
+    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
+
     apic = APIConnect(manager=manager_host)
     apic.verify_ssl = False
 
+    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
+    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
+    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
+    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
+
     # Login
     apic.login(manager_usrname, manager_password, manager_realm)
+
+    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
+    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
+    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
+    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
 
     # Publish the product
     product = load_yaml(product_file)
     published_product = publish(product_file, organization, catalog, space)
 
+    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
+    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
+    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
+    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
+
     # Get product status
     product_version = product['info']['version']
     product_name = product['info']['name']
     product_b = apic.product_get(organization, catalog, product_name, product_version)
+
+    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
+    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
+    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
+    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
