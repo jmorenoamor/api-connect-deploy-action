@@ -3,6 +3,7 @@
 .idea/
 *.sublime-workspace
 *.sublime-project
+no-commit/*
 
 # Vagrant
 .vagrant/

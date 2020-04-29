@@ -8,6 +8,7 @@ import sys
 import oyaml as yaml
 import json
 import logging
+import logging.config
 import requests
 
 from pyapic import APIConnect
@@ -15,8 +16,6 @@ from pyapic import APIConnect
 # Hide SSL verify warnings
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-
-logger = logging.getLogger(__name__)
 
 __author__ = "Jesús Moreno Amor"
 __license__ = "GPL"
@@ -40,7 +39,22 @@ def load_yaml(filename, encoding='utf-8'):
             raise APIDeployError("Error al cargar el archivo: " + filename, None)
 
 
-def publish(product_file, organization, catalog, space):
+def setup_logging(path='logging.yaml', default_level=logging.INFO):
+    if os.path.exists(path):
+        with open(path, 'rt') as f:
+            try:
+                config = yaml.safe_load(f.read())
+                logging.config.dictConfig(config)
+            except Exception as e:
+                print(e)
+                print('Error in Logging Configuration. Using default configs')
+                logging.basicConfig(level=default_level)
+    else:
+        logging.basicConfig(level=default_level)
+        print('Failed to load configuration file. Using default configs')
+
+
+def prepare_product(product_file):
     """Publish a product to a catalog"""
 
     # Load the product
@@ -107,10 +121,10 @@ def publish(product_file, organization, catalog, space):
     logger.info(f"Added product {temporal_product} to the publish order")
 
     # Publish the product
-    published_product = apic.product_publish(organization, catalog, product, files, space)
+    # published_product = apic.product_publish(organization, catalog, product, files, space)
+    # return published_product
 
-    return published_product
-
+    return files
 
 def main():
 
@@ -128,29 +142,40 @@ def main():
 
     # Login
     apic.login(manager_usrname, manager_password, manager_realm)
-    print("::debug::Logged in to API Connect")
+    # print("::debug::Logged in to API Connect")
     logger.info(f"Logged in to API Conned")
 
-    # Publish the product
+    # Prepare the product
     product = load_yaml(product_file)
-    published_product = publish(product_file, organization, catalog, space)
-    print("::debug::Published the product")
+    prepared_files = prepare_product(product_file)
+
+    # Publish the product
+    published_product = apic.product_publish(organization, catalog, None, prepared_files, space)
+    # print("::debug::Published the product")
     logger.info("Published the product")
 
     # Get product status
     product_version = product['info']['version']
     product_name = product['info']['name']
     product_b = apic.product_get(organization, catalog, product_name, product_version)
-    print("::debug::Checked the product")
+    # print("::debug::Checked the product")
     logger.info("Checked the product")
+    logger.info(json.dumps(product_b, indent=2))
 
     print(f"::set-output name=result::published")
 
 if __name__ == "__main__":
 
+    setup_logging()
+    logger = logging.getLogger(__name__)
+    logging.addLevelName(logging.DEBUG, 'debug')
+    logging.addLevelName(logging.INFO, 'debug')
+    logging.addLevelName(logging.WARNING, 'warning')
+    logging.addLevelName(logging.ERROR, 'error')
+
     try:
         main()
         exit(0)
     except Exception as e:
-        print("::error:: " + e)
+        print("::error:: " + str(e))
         exit(99)
