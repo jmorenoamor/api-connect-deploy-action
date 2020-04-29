@@ -26,12 +26,16 @@ root:
     propogate: yes
 
 loggers:
-    api-deploy:
-        level: INFO
+    github:
+        level: DEBUG
         handlers:
             - github
         propogate: no
-
+    console:
+        level: INFO
+        handlers:
+            - standard
+        propogate: no
     urllib3:
         level: INFO
         handlers:

@@ -72,7 +72,7 @@ def prepare_product(product_file):
             '''
             raise APIDeployError("Formato de producto no soportado 'name:'", None)
         if "$ref" in api_definition.keys():
-            logger.debug(f"API $ref {api_definition['$ref']}")
+            console_logger.debug(f"API $ref {api_definition['$ref']}")
             '''
             If the API is defined as a external reference, we need to solve it and transform the
             definition from:
@@ -84,7 +84,7 @@ def prepare_product(product_file):
 
             # Clean the API reference name, solo para VODAFONE
             clean_name = api_definition['$ref'].split('_')[0] + ".yaml"
-            logger.debug(f"Cleaned {api_definition['$ref']} to {clean_name}")
+            console_logger.debug(f"Cleaned {api_definition['$ref']} to {clean_name}")
 
             # Load the API
             api_filename = os.path.join(product_path, clean_name)
@@ -92,14 +92,14 @@ def prepare_product(product_file):
 
             # Transform the reference from $ref to name
             api_definition['name'] = f"{api['info']['x-ibm-name']}:{api['info']['version']}"
-            logger.debug(f"Translated {api_definition['$ref']} to {api_definition['name']}")
+            console_logger.debug(f"Translated {api_definition['$ref']} to {api_definition['name']}")
             del api_definition['$ref']
 
             # Add the API file to the publish order
             files.append(
                 ('openapi', ('openapi', open(api_filename, 'rb'), 'application/yaml'))
             )
-            logger.info(f"Added API {api_filename} to the publish order")
+            console_logger.info(f"Added API {api_filename} to the publish order")
 
             # If the API has a WSDL definition, add it to the publish order
             if api['x-ibm-configuration']['type'] == "wsdl" and 'wsdl-definition' in api['x-ibm-configuration']:
@@ -107,7 +107,7 @@ def prepare_product(product_file):
                 files.append(
                     ('wsdl', ('wsdl', open(wsdl_filename, 'rb'), 'application/zip'))
                 )
-                logger.info(f"Added WSDL {wsdl_filename} to the publish order")
+                console_logger.info(f"Added WSDL {wsdl_filename} to the publish order")
 
     # Dump the product to a temporal file that doesn't have $ref references
     temporal_product = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'to_deploy.yaml')
@@ -118,7 +118,7 @@ def prepare_product(product_file):
     files.append(
         ('product', ('product', open(temporal_product, 'rb'), 'application/yaml')),
     )
-    logger.info(f"Added product {temporal_product} to the publish order")
+    console_logger.info(f"Added product {temporal_product} to the publish order")
 
     # Publish the product
     # published_product = apic.product_publish(organization, catalog, product, files, space)
@@ -143,7 +143,7 @@ def main():
     # Login
     apic.login(manager_usrname, manager_password, manager_realm)
     # print("::debug::Logged in to API Connect")
-    logger.info(f"Logged in to API Conned")
+    console_logger.info(f"Logged in to API Conned")
 
     # Prepare the product
     product = load_yaml(product_file)
@@ -152,26 +152,26 @@ def main():
     # Publish the product
     published_product = apic.product_publish(organization, catalog, None, prepared_files, space)
     # print("::debug::Published the product")
-    logger.info("Published the product")
+    console_logger.info("Published the product")
 
     # Get product status
     product_version = product['info']['version']
     product_name = product['info']['name']
     product_b = apic.product_get(organization, catalog, product_name, product_version)
-    # print("::debug::Checked the product")
-    logger.info("Checked the product")
-    logger.info(json.dumps(product_b, indent=2))
+    console_logger.info("Checked the product")
 
     print(f"::set-output name=result::published")
 
 if __name__ == "__main__":
 
     setup_logging()
-    logger = logging.getLogger(__name__)
     logging.addLevelName(logging.DEBUG, 'debug')
     logging.addLevelName(logging.INFO, 'debug')
     logging.addLevelName(logging.WARNING, 'warning')
     logging.addLevelName(logging.ERROR, 'error')
+
+    github_logger = logging.getLogger('github')
+    console_logger = logging.getLogger('console')
 
     try:
         main()
