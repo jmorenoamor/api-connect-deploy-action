@@ -1,7 +1,23 @@
-name: "Python Container Action Template"
-description: "Get started with Python Container actions"
-author: "Jacob Tomlinson"
+name: "API Connect product deploy"
+description: "Deploy a product to an API Connect platform"
+author: "Jesús Moreno Amor"
 inputs:
+  productFile:
+    description: "Product to deploy"
+    default: ""
+  managerHost:
+    description: "API Connect Manager endpoint"
+    default: "localhost:2000"
+  managerUsername:
+    description: "Username"
+    default: ""
+  managerPassword:
+    description: "Password"
+    default: ""
+  managerRealm:
+    description: "Authentication realm"
+    default: ""
+
   myInput:
     description: "Input to use"
     default: "world"
