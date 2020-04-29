@@ -9,7 +9,6 @@ import oyaml as yaml
 import json
 import logging
 import requests
-# import argparse
 
 from pyapic import APIConnect
 
@@ -17,11 +16,7 @@ from pyapic import APIConnect
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-class APIDeployError(Exception):
-    def __init__(self, message, errors):
-        super().__init__(message)
-        self.errors = errors
-
+logger = logging.getLogger(__name__)
 
 __author__ = "Jesús Moreno Amor"
 __license__ = "GPL"
@@ -29,6 +24,12 @@ __version__ = "1.0.0"
 __maintainer__ = "Jesús Moreno Amor"
 __email__ = "jesus@morenoamor.com"
 __status__ = "Production"
+
+
+class APIDeployError(Exception):
+    def __init__(self, message, errors):
+        super().__init__(message)
+        self.errors = errors
 
 
 def load_yaml(filename, encoding='utf-8'):
@@ -55,7 +56,7 @@ def publish(product_file, organization, catalog, space):
             If the API is defined by name and version, we need to search through the filesystem
             for a yaml fil that contains the API and version specified
             '''
-            pass
+            raise APIDeployError("Formato de producto no soportado 'name:'", None)
         if "$ref" in api_definition.keys():
             logger.debug(f"API $ref {api_definition['$ref']}")
             '''
@@ -113,70 +114,43 @@ def publish(product_file, organization, catalog, space):
 
 def main():
 
-    product_file = os.getenv("PRODUCT_FILE", "default")
-    manager_host = os.getenv("MANAGER_HOST", "default")
-    manager_usrname = os.getenv("MANAGER_USRNAME", "default")
-    manager_password = os.getenv("MANAGER_PASSWORD", "default")
-    manager_realm = os.getenv("MANAGER_REALM", "default")
-
-
-    my_input = os.getenv("INPUT_MYINPUT", "default")
-
-    my_output = f"Hello {my_input}"
-
-    print(f"::set-output name=myOutput::{my_output}")
-
-
-if __name__ == "__main__":
-    # main()
-
-    logger = logging.getLogger(__name__)
-
     product_file = os.getenv("INPUT_PRODUCTFILE")
-    manager_host = os.getenv("INPUT_MANAGERHOST", "localhost:2000")
+    manager_host = os.getenv("INPUT_MANAGERHOST")
     manager_usrname = os.getenv("INPUT_MANAGERUSERNAME")
     manager_password = os.getenv("INPUT_MANAGERPASSWORD")
     manager_realm = os.getenv("INPUT_MANAGERREALM")
-    catalog = os.getenv("INPUT_CATALOG", "sadbox")
-    organization = os.getenv("INPUT_ORGANIZATION ", "localtest")
+    catalog = os.getenv("INPUT_CATALOG")
+    organization = os.getenv("INPUT_ORGANIZATION")
     space = os.getenv("INPUT_SPACE ", None)
-
-    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
-    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
-    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
-    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
 
     apic = APIConnect(manager=manager_host)
     apic.verify_ssl = False
 
-    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
-    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
-    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
-    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
-
     # Login
     apic.login(manager_usrname, manager_password, manager_realm)
-
-    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
-    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
-    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
-    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
+    print("::debug::Logged in to API Connect")
+    logger.info(f"Logged in to API Conned")
 
     # Publish the product
     product = load_yaml(product_file)
     published_product = publish(product_file, organization, catalog, space)
-
-    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
-    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
-    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
-    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
+    print("::debug::Published the product")
+    logger.info("Published the product")
 
     # Get product status
     product_version = product['info']['version']
     product_name = product['info']['name']
     product_b = apic.product_get(organization, catalog, product_name, product_version)
+    print("::debug::Checked the product")
+    logger.info("Checked the product")
 
-    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
-    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
-    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
-    print("::set-output name=myOutput::ASDFSADFSADFASDFASDFASDF")
+    print(f"::set-output name=result::published")
+
+if __name__ == "__main__":
+
+    try:
+        main()
+        exit(0)
+    except Exception as e:
+        print("::error:: " + e)
+        exit(99)

@@ -27,8 +27,8 @@ inputs:
     description: "If the catalog has spaces activated, the space to publish the product"
     default: null
 outputs:
-  myOutput:
-    description: "Output from the action"
+  result:
+    description: "Result of the publish"
 runs:
   using: "docker"
   image: "Dockerfile"
